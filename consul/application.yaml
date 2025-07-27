@@ -9,7 +9,7 @@ spec:
   project: default # Or your specific Argo CD project
 
   source:
-    repoURL: https://github.com/your-org/dev-consul.git # URL of your Consul Helm chart repository
+    repoURL: https://github.com/auribem84/dev-consul.git # URL of your Consul Helm chart repository
     targetRevision: HEAD # Or a specific branch (e.g., 'main'), tag (e.g., 'v1.0.0'), or commit SHA
     path: ./ # The path to the Helm chart within the 'dev-consul' repository (usually '.' if chart is at root)
     helm:

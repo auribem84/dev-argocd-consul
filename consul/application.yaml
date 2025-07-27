@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: consul-dev
+  namespace: argocd # Namespace where Argo CD is running
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io # Recommended for proper resource cleanup
+spec:
+  project: default # Or your specific Argo CD project
+
+  source:
+    repoURL: https://github.com/your-org/dev-consul.git # URL of your Consul Helm chart repository
+    targetRevision: HEAD # Or a specific branch (e.g., 'main'), tag (e.g., 'v1.0.0'), or commit SHA
+    path: ./ # The path to the Helm chart within the 'dev-consul' repository (usually '.' if chart is at root)
+    helm:
+      # You can override values here directly or reference a values file in the source repo
+      # For a dedicated dev environment, you might put dev-specific values here.
+      # Or, for more complex overrides, reference a values file in this (GitOps) repo
+      values: |
+        global:
+          datacenter: dev-dc1
+          logLevel: DEBUG
+        server:
+          replicas: 1 # For dev, maybe start with 1 replica for cost/resource saving
+        ui:
+          service:
+            type: ClusterIP
+
+  destination:
+    server: https://kubernetes.default.svc # The Kubernetes API server URL of your target cluster
+    namespace: consul-dev # The namespace where Consul will be deployed
+
+  syncPolicy:
+    automated:
+      prune: true # Delete resources that are no longer defined in Git
+      selfHeal: true # Revert any manual changes to match Git state
+    syncOptions:
+      - CreateNamespace=true # Argo CD will create the target namespace if it doesn't exist
+      - ApplyOutOfSyncOnly=true # Only apply changes if resources are out of sync
